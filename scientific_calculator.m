@@ -1,30 +1,30 @@
 function scientific_calculator()
+    global last_answer;
+    last_answer = 0;
     %figure
-    fig = figure('Position', [200, 100, 400, 930], 'Name', 'Scientific Calculator','NumberTitle', 'off', 'Color', [0.6, 0.6, 0.6]);
+    fig = figure('Position', [200, 100, 475, 790], 'Name', 'Scientific Calculator','NumberTitle', 'off', 'Color', [0.6, 0.6, 0.6]);
 
     % result box
-    result_box = uicontrol('Style', 'edit', 'Position', [20, 800, 350, 100], ...
+    result_box = uicontrol('Style', 'edit', 'Position', [20, 650, 445, 100], ...
         'FontSize', 35, 'Enable', 'inactive', 'HorizontalAlignment', 'right', ...
         'BackgroundColor', [1, 1, 1]');
 
     %title box
-    uicontrol('Style', 'edit', 'Position', [20, 890, 350, 40], ...
+    uicontrol('Style', 'edit', 'Position', [20, 750, 445, 40], ...
         'FontSize', 20, 'Enable', 'inactive', 'HorizontalAlignment', 'center', ...
         'BackgroundColor', [0.6, 0.6, 0.6],'ForegroundColor', [1.0, 1.0, 0.0],'String','Octave Scientific Calculator ');
 
     % buttons
     button_labels = {
-                     '√', 'x^2', 'x^y', 'log10', ...
-                     'e^x', '!', 'π', 'ln', ...
-                     'sin', 'cos', 'tan', 'sinh', ...
-                     'asin', 'acos', 'rad', 'deg',...
-                     'nCr', 'nPr', '∫dx', 'dy/dx', ...
-                     ',','X','LCM','GCD', ...
-                     '(', ')', 'DEL', 'AC', ...
-                      '7', '8', '9', '/', ...
-                     '4', '5', '6', '*', ...
-                     '1', '2', '3', '-', ...
-                     '0', '.', '=', '+', ...
+                     'sin', 'cos', 'tan', 'rad','deg' ...
+                     'asin', 'acos', 'sinh','∫dx', 'dy/dx', ...
+                     'nCr','nPr','LCM','GCD','log10', ...
+                     '√','ln','eˣ', 'x²', 'xʸ'...
+                     '(', ')', 'DEL', 'AC', 'Ans' ...
+                      '7', '8', '9', '/',  '!' ...
+                     '4', '5', '6', '*', 'π'...
+                     '1', '2', '3', '-', 'X'...
+                     '0', '.', '=', '+', ',' ...
                      };
 
     main_btns ={ '(', ')','7', '8', '9', '/', ...
@@ -36,15 +36,15 @@ function scientific_calculator()
     button_width = 80;
     button_height = 60;
     start_x = 20;
-    start_y = 720;
+    start_y = 580;
     padding_x = 10;
     padding_y = 10;
 
     %dynamic button creation
     for i = 1:length(button_labels)
         % calculate button position
-        col = mod(i-1, 4);
-        row = floor((i-1) / 4);
+        col = mod(i-1, 5);
+        row = floor((i-1) / 5);
         x_pos = start_x + col * (button_width + padding_x);
         y_pos = start_y - row * (button_height + padding_y);
 
@@ -77,23 +77,29 @@ function scientific_calculator()
                   n = str2double(parts{1});
                   r = str2double(parts{2});
                   result = factorial(n) / (factorial(r) * factorial(n - r))
+                  last_answer = result;
+
                 elseif ~isempty(strfind(current_text,"P")) %nPr evaluate
                   parts = strsplit(current_text, "P");
                   n = str2double(parts{1});
                   r = str2double(parts{2});
                   result = factorial(n) / factorial(n - r);
+                  last_answer = result;
+
                 else
                   result = eval(current_text); %evealuate expressions
+
                 endif
-                 set(result_box, 'String', num2str(result));  % Display result
+                last_answer = result;
+                set(result_box, 'String', num2str(result));  % Display result
             catch
                 set(result_box, 'String', 'SYNTAX ERROR','ForegroundColor', [1.0, 0, 0]); %error handle
             end
         elseif strcmp(label, '√')
             set(result_box, 'String', ['sqrt(' current_text ')']);
-        elseif strcmp(label, 'x^2')
+        elseif strcmp(label, 'x²')
             set(result_box, 'String', [current_text '^2']);
-        elseif strcmp(label, 'x^y')
+        elseif strcmp(label, 'xʸ')
             set(result_box, 'String', [current_text '^']);
         elseif strcmp(label, 'sin')
             set(result_box, 'String', [current_text 'sin(']);
@@ -117,7 +123,7 @@ function scientific_calculator()
             set(result_box, 'String', [current_text 'pi']);
         elseif strcmp(label, '!')
             set(result_box, 'String', ['factorial(' current_text ')']);
-        elseif strcmp(label, 'e^x')
+        elseif strcmp(label, 'eˣ')
             set(result_box, 'String', ['exp(' current_text ')']);
         elseif strcmp(label, 'ln')
             set(result_box, 'String', ['log(' current_text ')']);
@@ -127,6 +133,8 @@ function scientific_calculator()
             set(result_box, 'String', [current_text 'C']);
         elseif strcmp(label, 'nPr')
             set(result_box, 'String', [current_text 'P']);
+        elseif strcmp(label, 'Ans')
+            set(result_box, 'String', [current_text num2str(last_answer)]);
         elseif strcmp(label, '∫dx')
             try
               current_text = strrep(current_text, 'pi', num2str(pi));
@@ -137,6 +145,7 @@ function scientific_calculator()
               equation = strrep(equation, '^', '.^');
               f = str2func(['@(X) ' equation]);
               result = integral(f, a, b);
+              last_answer = result;
               set(result_box, 'String', num2str(result));
             catch
               set(result_box, 'String', 'SYNTAX ERROR','ForegroundColor', [1.0, 0, 0]);
@@ -153,6 +162,7 @@ function scientific_calculator()
               y_vals = f(x_vals);
               dy_dx = diff(y_vals) ./ diff(x_vals);
               result = dy_dx(end);
+              last_answer = result;
               set(result_box, 'String', num2str(result));
             catch
               set(result_box, 'String', 'SYNTAX ERROR','ForegroundColor', [1.0, 0, 0]);
@@ -178,7 +188,8 @@ function scientific_calculator()
               parts = strsplit(current_text, ",");
               a=str2double(parts{1});
               b=str2double(parts{2});
-              result=gcd(a,b)
+              result=gcd(a,b);
+              last_answer = result;
               set(result_box, 'String', num2str(result));
            catch
                set(result_box, 'String', 'SYNTAX ERROR');
@@ -189,7 +200,8 @@ function scientific_calculator()
               parts = strsplit(current_text, ",");
               a=str2double(parts{1});
               b=str2double(parts{2});
-              result=lcm(a,b)
+              result=lcm(a,b);
+              last_answer = result;
               set(result_box, 'String', num2str(result));
             catch
               set(result_box, 'String', 'SYNTAX ERROR');
@@ -200,8 +212,8 @@ function scientific_calculator()
         end
     end
 
-    %some credit
-    uicontrol('Style', 'edit', 'Position', [20, 3, 350, 15], ...
+    %sub title
+    uicontrol('Style', 'edit', 'Position', [20, 3, 445, 15], ...
         'FontSize', 8, 'Enable', 'inactive', 'HorizontalAlignment', 'center', ...
         'BackgroundColor', [0.6, 0.6, 0.6],'ForegroundColor', [1, 1, 1],'String','Made with 🤍 by prvnX');
 end
