@@ -74,5 +74,7 @@ Number Theory
   
 	2. LCM (Least Common Multiple):
 		• Input the first number → Click , → Input the second number → Click LCM
+  
+To Load the last answer click the ANS button.
 
 This guide ensures the correct usage of the calculator’s features. Please follow the formatting instructions for advanced operations.
